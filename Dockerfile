@@ -14,7 +14,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy your server code and dpt.jar
 COPY protection_server.py dpt.jar ./
-
+COPY shell-files/ /app/shell-files/
 # Create upload and output directories
 RUN mkdir uploads protected
 
