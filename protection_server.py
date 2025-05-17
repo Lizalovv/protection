@@ -9,7 +9,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
 def home():
-    return 'DexShield Server is running!'
+    try:
+        version = subprocess.check_output(["java", "-version"], stderr=subprocess.STDOUT, text=True)
+    except Exception as e:
+        version = str(e)
+    return f'DexShield Server is running!<br><br><pre>{version}</pre>'
 
 
 @app.route('/protect', methods=['POST'])
@@ -21,7 +25,7 @@ def protect():
     apk_path = os.path.join(UPLOAD_FOLDER, apk_file.filename)
     apk_file.save(apk_path)
 
-    java_bin = "/usr/bin/java"  # Koyeb container mein OpenJDK install karenge
+    java_bin = "java"  # Koyeb container mein OpenJDK install karenge
     jar_path = "dpt.jar"  # yeh dpt.jar container mein copy karenge
 
     output_dir = os.path.join(UPLOAD_FOLDER, "protected")
