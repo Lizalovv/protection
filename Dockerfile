@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Copy server code aur dpt.jar (tujhe dpt.jar apne repo mein dalna hoga)
-COPY protect_server.py .
+COPY protection_server.py .
 COPY dpt.jar .
 
 RUN mkdir uploads
