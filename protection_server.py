@@ -6,6 +6,12 @@ app = Flask(__name__)
 UPLOAD_FOLDER = '/app/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
+@app.route('/')
+def home():
+    return 'DexShield Server is running!'
+
+
 @app.route('/protect', methods=['POST'])
 def protect():
     if 'apk' not in request.files:
