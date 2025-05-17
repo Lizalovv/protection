@@ -1,21 +1,24 @@
-FROM python:3.10-slim
+# Use a slim OpenJDK 11 image (Java is already installed here)
+FROM openjdk:11-jre-slim
 
-# Fix apt and install java
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    openjdk-11-jre-headless \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Install Python 3 and pip
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
+# Install Flask
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-COPY protection_server.py .
-COPY dpt.jar .
+# Copy your server code and dpt.jar
+COPY protection_server.py dpt.jar ./
 
-RUN mkdir uploads
+# Create upload and output directories
+RUN mkdir uploads protected
 
 EXPOSE 8080
 
-CMD ["python", "protection_server.py"]
+# Launch the Flask server
+CMD ["python3", "protection_server.py"]
