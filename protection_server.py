@@ -32,7 +32,7 @@ def protect():
     java_bin = "java"
     jar_path = "dpt.jar"
 
-    # Clean out old protected files
+    # Clean previous output
     for f in os.listdir(PROTECTED_FOLDER):
         os.remove(os.path.join(PROTECTED_FOLDER, f))
 
@@ -40,25 +40,28 @@ def protect():
 
     try:
         process = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+
+        result = {
+            "stdout": process.stdout,
+            "stderr": process.stderr,
+            "return_code": process.returncode,
+            "protected_dir_listing": os.listdir(PROTECTED_FOLDER),
+        }
+
         if process.returncode != 0:
-            return jsonify({'error': process.stderr}), 500
+            result["error"] = "Protection failed"
+            return jsonify(result), 500
 
-        # List generated files
-        files = os.listdir(PROTECTED_FOLDER)
-
-        # Find first APK
-        for f in files:
+        # Try to return first APK if exists
+        for f in result["protected_dir_listing"]:
             if f.lower().endswith('.apk'):
                 return send_file(os.path.join(PROTECTED_FOLDER, f), as_attachment=True)
 
-        # If no APK, return the listing for debugging
-        return jsonify({
-            'error': 'Protected APK not found',
-            'protected_dir_listing': files
-        }), 500
+        result["error"] = "Protected APK not found"
+        return jsonify(result), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
+        
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
