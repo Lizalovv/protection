@@ -34,14 +34,18 @@ def protect():
 
     try:
         process = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-
         if process.returncode != 0:
             return jsonify({'error': process.stderr}), 500
 
-        # Search for APK file in PROTECTED_FOLDER
-        for file in os.listdir(PROTECTED_FOLDER):
+        # List files in the protected directory
+        protected_files = os.listdir(PROTECTED_FOLDER)
+        print("Protected files:", protected_files)
+
+        # Find the first APK file in the protected directory
+        for file in protected_files:
             if file.endswith(".apk"):
-                return send_file(os.path.join(PROTECTED_FOLDER, file), as_attachment=True)
+                protected_apk_path = os.path.join(PROTECTED_FOLDER, file)
+                return send_file(protected_apk_path, as_attachment=True)
 
         return jsonify({'error': 'Protected APK not found'}), 500
 
