@@ -22,7 +22,7 @@ def protect():
     apk_file.save(apk_path)
 
     java_bin = "/usr/bin/java"  # Koyeb container mein OpenJDK install karenge
-    jar_path = "/app/dpt.jar"  # yeh dpt.jar container mein copy karenge
+    jar_path = "dpt.jar"  # yeh dpt.jar container mein copy karenge
 
     output_dir = os.path.join(UPLOAD_FOLDER, "protected")
     os.makedirs(output_dir, exist_ok=True)
