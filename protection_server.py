@@ -16,6 +16,8 @@ def home():
     return f'DexShield Server is running!<br><br><pre>{version}</pre>'
 
 
+from flask import send_file
+
 @app.route('/protect', methods=['POST'])
 def protect():
     if 'apk' not in request.files:
@@ -25,8 +27,8 @@ def protect():
     apk_path = os.path.join(UPLOAD_FOLDER, apk_file.filename)
     apk_file.save(apk_path)
 
-    java_bin = "java"  # Koyeb container mein OpenJDK install karenge
-    jar_path = "dpt.jar"  # yeh dpt.jar container mein copy karenge
+    java_bin = "java"
+    jar_path = "dpt.jar"
 
     output_dir = os.path.join(UPLOAD_FOLDER, "protected")
     os.makedirs(output_dir, exist_ok=True)
@@ -38,7 +40,12 @@ def protect():
         if process.returncode != 0:
             return jsonify({'error': process.stderr}), 500
         else:
-            return jsonify({'message': 'Protection successful', 'output': process.stdout}), 200
+            # Assume output APK has same filename in output_dir
+            protected_apk_path = os.path.join(output_dir, apk_file.filename)
+            if os.path.exists(protected_apk_path):
+                return send_file(protected_apk_path, as_attachment=True)
+            else:
+                return jsonify({'error': 'Protected APK not found'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
