@@ -1,14 +1,16 @@
 FROM python:3.10-slim
 
-# Install OpenJDK 11 for Java support
-RUN apt-get update && apt-get install -y openjdk-11-jre-headless
+# Fix apt and install java
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openjdk-11-jre-headless \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy server code aur dpt.jar (tujhe dpt.jar apne repo mein dalna hoga)
 COPY protection_server.py .
 COPY dpt.jar .
 
