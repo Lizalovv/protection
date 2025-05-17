@@ -12,7 +12,9 @@ os.makedirs(PROTECTED_FOLDER, exist_ok=True)
 @app.route('/')
 def home():
     try:
-        version = subprocess.check_output(["java", "-version"], stderr=subprocess.STDOUT, text=True)
+        version = subprocess.check_output(
+            ["java", "-version"], stderr=subprocess.STDOUT, text=True
+        )
     except Exception as e:
         version = str(e)
     return f'DexShield Server is running!<br><br><pre>{version}</pre>'
@@ -30,6 +32,10 @@ def protect():
     java_bin = "java"
     jar_path = "dpt.jar"
 
+    # Clean out old protected files
+    for f in os.listdir(PROTECTED_FOLDER):
+        os.remove(os.path.join(PROTECTED_FOLDER, f))
+
     cmd = [java_bin, "-jar", jar_path, "-f", apk_path, "-o", PROTECTED_FOLDER]
 
     try:
@@ -37,17 +43,19 @@ def protect():
         if process.returncode != 0:
             return jsonify({'error': process.stderr}), 500
 
-        # List files in the protected directory
-        protected_files = os.listdir(PROTECTED_FOLDER)
-        print("Protected files:", protected_files)
+        # List generated files
+        files = os.listdir(PROTECTED_FOLDER)
 
-        # Find the first APK file in the protected directory
-        for file in protected_files:
-            if file.endswith(".apk"):
-                protected_apk_path = os.path.join(PROTECTED_FOLDER, file)
-                return send_file(protected_apk_path, as_attachment=True)
+        # Find first APK
+        for f in files:
+            if f.lower().endswith('.apk'):
+                return send_file(os.path.join(PROTECTED_FOLDER, f), as_attachment=True)
 
-        return jsonify({'error': 'Protected APK not found'}), 500
+        # If no APK, return the listing for debugging
+        return jsonify({
+            'error': 'Protected APK not found',
+            'protected_dir_listing': files
+        }), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
