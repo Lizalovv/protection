@@ -16,4 +16,4 @@ RUN mkdir uploads
 
 EXPOSE 8080
 
-CMD ["python", "protect_server.py"]
+CMD ["python", "protection_server.py"]
